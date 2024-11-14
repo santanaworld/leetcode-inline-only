@@ -1,0 +1,54 @@
+#include <iostream>
+#include <string.h>
+
+int wrapper(char* haystack, char* needle) {
+	char * pointer = strstr(haystack, needle);
+	int ret_value = -1;
+	__asm {
+		// eax = return value
+		movzx eax, pointer
+		cmp eax, NULL
+		je finish
+
+		ret_normal:
+			
+			movzx ebx, haystack
+			sub eax, ebx
+			mov ret_value, eax
+
+		finish:
+	}
+	return ret_value;
+}
+
+int strStr(char* haystack, char* needle) {
+	const char* message = "Hey there";
+	int ret_value = -1;
+
+	__asm {
+		// push arguments onto modified strstr function
+		push needle
+		push haystack
+		call wrapper
+		mov ret_value, eax
+		pop eax
+		pop ebx
+	}
+
+
+	return ret_value;
+}
+
+
+int main()
+{
+	std::cout << strStr((char*)"sadbutsad", (char*)"sad");
+	std::cout << strStr((char*)"leetcode", (char*)"leeto");
+
+
+
+	
+}
+
+
+
