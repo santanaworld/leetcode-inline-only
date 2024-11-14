@@ -1,0 +1,89 @@
+#include <iostream>
+
+void print(char a) {
+	printf("%c", a);
+}
+
+
+char* mergeAlternately(char* word1, char* word2) {
+	
+	const int word1_length = strlen(word1) ;
+	const int word2_length = strlen(word2) ;
+	const char* message = "Hey there";
+	const int total_length = word1_length + word2_length; // 2 bytes length
+
+	char appended[24] = "8";
+
+	__asm {
+
+		xor eax, eax // pointer (for both arrays)
+		xor ebx, ebx // word1 index
+		xor ecx, ecx // memory position counter
+		xor edx, edx // word2 index
+
+
+		add_first :
+
+		cmp ebx, word1_length	// compare ebx (word1 index count) to its length
+			je add_second			// jump to add_second if equal
+
+			mov eax, word1 //eax points to beginning of string
+			movzx eax, [eax + ebx] // move element of current pos, edx = index
+
+			mov[appended + ecx], al //concat element of word1 to appended[]			
+
+			inc ebx
+			inc ecx				// inc ecx beforehand to avoid issues with add
+			cmp edx, word2_length	// if not, check if both indexes reached their limit
+			je finalize_first_case		// finalize if yes, otherwise continue
+
+			add_second :
+
+		cmp edx, word2_length
+			je add_first
+
+
+
+			mov eax, word2 //eax points to beginning of second string
+			movzx eax, [eax + edx] // move element of current pos, edx = index
+
+			mov[appended + ecx], al //concat element of word2 to appended[]
+
+			inc edx // increment counters
+
+			inc ecx
+
+			cmp ebx, word1_length
+			je finalize_second_case
+
+			jmp add_first
+
+			// TODO: compare both counters so no infinite loop causes, return appended*
+
+		finalize_first_case:
+		cmp ebx, word1_length
+			jne add_first
+			jmp return_void
+
+
+			finalize_second_case :
+		cmp edx, word2_length
+			jne add_second
+			jmp return_void
+
+
+
+		return_void:
+	};
+
+	printf(appended);
+	return appended;
+}
+
+int main()
+{
+
+	char word1[5] = "abcd";
+	char word2[3] = "pq";
+	mergeAlternately(word1, word2);
+}
